@@ -4,7 +4,23 @@
     {
       "js": ["content/index.ts"],
       "matches": ["https://*/*", "http://*/*"]
+    },
+    {
+      "run_at": "document_end",
+      "matches": ["https://sellercenter.lazada.co.th/apps/order/index*"],
+      "js": ["content/new_print.ts"]
     }
   ],
-  "browser_action": { "default_popup": "pages/popup/index.html" }
+  "browser_action": { "default_popup": "pages/popup/index.html" },
+  "options_ui": {
+    "page": "pages/options/index.html",
+    "open_in_tab": true
+  },
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "webRequest",
+    "webRequestBlocking",
+    "*://*.alicdn.com/*"
+  ]
 }
