@@ -9,9 +9,30 @@
       "run_at": "document_end",
       "matches": ["https://sellercenter.lazada.co.th/apps/order/index*"],
       "js": ["content/new_print.ts"]
+    },
+    {
+      "run_at": "document_end",
+      "matches": ["https://sellercenter.lazada.co.th/apps/order/list*"],
+      "js": ["content/newestPrint.ts"]
+    },
+    {
+      "run_at": "document_end",
+      "matches" : ["https://sellercenter.lazada.co.th/apps/order/detail*"],
+      "js": ["content/orderDetails.ts"]
+    },
+    {
+      "run_at": "document_end",
+      "matches" : ["https://sellercenter.lazada.co.th/apps/finance/accountStatement/index*"],
+      "js": ["content/transactions.ts"]
     }
   ],
   "browser_action": { "default_popup": "pages/popup/index.html" },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApbozNvdaIn2baX344ri6ehtvJ1pvGO5+asWscNuA6pQkx12zt37Ez3WEU/uUYKXoF6yatHsedmpfbjYmaTF4v8X9ilX4ZUBtk8Ay9Q5vHn5mmKx/hvV6tLRByMD3qCDsJkxuNQF6dh/Ch37kkD0ABrLM4Z2vYkt6Ag/GB+Ksxr/q01nMlybPdBicOpvIRITjXF5nrvH2gQ01g6HBll8zj43vpUeIq1CCbcvixM/npBaXtwY3W2H+NSsrEeF8E/orKL8da0hTjMaL7XHfun2Y2e2ISFw5Zv8+/qAglIgP1sojxxcFLN2/9Kx8LksyIrNZ+cvYTHvXhKWg62TtE/ImuwIDAQAB",
+  "icons": {
+    "16": "assets/icon16.png",
+    "48": "assets/icon48.png",
+    "128": "assets/icon128.png"
+  },
   "options_ui": {
     "page": "pages/options/index.html",
     "open_in_tab": true

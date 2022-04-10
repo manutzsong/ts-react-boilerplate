@@ -23,12 +23,12 @@ export interface LazadaOrder {
     isWork: boolean
     locationTree: string
     receiver: string
-    dataSource: DataSource[]
+    dataSource: LazadaOrderItem[]
     isVat: boolean
     total: string
   }
   
-  export interface DataSource {
+  export interface LazadaOrderItem {
     allowReturn: boolean
     deliveryOption: string
     itemId: string
@@ -50,7 +50,11 @@ export interface LazadaOrder {
     name: string
     total: string
     children: Children[]
+    quantity?: number
+    sum?:number
   }
+
+  
   
   export interface Children {
     isVat: boolean
