@@ -277,14 +277,14 @@ const GenStudentBill = async (
         const productQty = product.quantity ?? 1;
         const sumCurrentProducts = parseFloat(product.totalAmount) * productQty;
 
-        doc.setFontSize(8);
-        doc.text(`${i + 1}`, 30, y);
         doc.setFontSize(7);
+        doc.text(`${i + 1}`, 30, y);
+        // doc.setFontSize(6);
         const splitSellerSku = doc.splitTextToSize(product.sellerSku, 40);
         doc.text(splitSellerSku, 60, y);
         const splitProductName = doc.splitTextToSize(productName, 110);
         doc.text(splitProductName, 130, y);
-        doc.setFontSize(8);
+        // doc.setFontSize(6);
         doc.text(product.quantity?.toString() ?? '1', 260, y);
         doc.text(`${product.totalAmount}`, 310, y);
         doc.text(sumCurrentProducts.toString(), 360, y);

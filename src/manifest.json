@@ -1,4 +1,8 @@
 {
+  "name": "Laqoli - Lazada QOL Improvements",
+  "short_name": "Laqoli",
+  "description": "Mass announce promotion, unpaid, shipped and invite to follow, COD blacklist, bill customization, transaction analysis.",
+  "version": "2.0",
   "background": { "scripts": ["background/index.ts"] },
   "content_scripts": [
     {
@@ -40,8 +44,6 @@
   "permissions": [
     "storage",
     "unlimitedStorage",
-    "webRequest",
-    "webRequestBlocking",
-    "*://*.alicdn.com/*"
+    "tabs"
   ]
 }
