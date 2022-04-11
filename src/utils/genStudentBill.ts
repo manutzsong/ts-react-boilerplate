@@ -115,7 +115,7 @@ const GenStudentBill = async (
     const pngBase64 = await fetchSVG(labels[z]);
     doc.addImage(pngBase64, 'PNG', 30, 30, 180, 252, undefined, 'FAST');
 
-    if (laqoliLocalStorage.logo && laqoliSyncSettings.logoEnabled) {
+    if (laqoliLocalStorage && laqoliLocalStorage.logo && laqoliSyncSettings.logoEnabled) {
       if (laqoliLocalStorage.logo) {
         const { width, height } = await getImageDimension(
           laqoliLocalStorage.logo,
@@ -135,7 +135,7 @@ const GenStudentBill = async (
 
     yTracking += 280;
 
-    if (laqoliSyncSettings.orderNumberEnabled) {
+    if (laqoliSyncSettings && laqoliSyncSettings.orderNumberEnabled) {
       doc.setFontSize(10);
       doc.text(`เลขที่ออเดอร์: ${order[0].orderNumber}`, 240, yTracking - 50);
     }

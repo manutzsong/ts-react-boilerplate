@@ -5,7 +5,20 @@ import lazadaAPI from '../utils/lazadaAPI';
 import GenStudentBill from '../utils/genStudentBill';
 import { LazadaOrder } from '../pages/types/LazadaOrderType';
 import utils from '../utils/utils';
-import zIndex from '@mui/material/styles/zIndex';
+
+
+
+let intervalButtons: NodeJS.Timeout;
+
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    // listen for messages sent from background.js
+    if (request.message === 'hello!') {// this we will reinject the url
+      console.log(request.details) // new url is now in content scripts!
+      clearInterval(intervalButtons); // clear the inverval
+      init(); // reinject the script
+    }
+});
 
 const init = async () => {
   const addressRes = await lazadaAPI.getAddress();
@@ -19,8 +32,8 @@ const init = async () => {
     'afterbegin',
     `
     <div style="padding-right: 1rem;">
-      <button class="next-btn next-medium next-btn-primary aplus-auto-clk aplus-auto-exp" id="print">Print Dropoff</button>
-        <button class="next-btn next-medium next-btn-primary aplus-auto-clk aplus-auto-exp" id="print-student">Print Dropoff + ใบเสร็จ</button>
+      <button disabled class="next-btn next-medium next-btn-primary aplus-auto-clk aplus-auto-exp" id="print">Print Dropoff</button>
+      <button disabled class="next-btn next-medium next-btn-primary aplus-auto-clk aplus-auto-exp" id="print-student">Print Dropoff + ใบเสร็จ</button>
     </div>
   `,
   );
@@ -32,7 +45,7 @@ const init = async () => {
     .getElementById('print-student')
     ?.addEventListener('click', () => getOrders(true));
 
-  setInterval(() => {
+  intervalButtons = setInterval(() => {
     const checkBoxElement = document.querySelector(
       '.list-toolbar-head .next-checkbox-input',
     ) as HTMLElement;
@@ -40,7 +53,7 @@ const init = async () => {
     const printBillElem = document.getElementById(
       'print-student',
     ) as HTMLButtonElement;
-    if (checkBoxElement && checkBoxElement.attributes['aria-checked']) {
+    if (checkBoxElement && checkBoxElement.attributes['aria-checked'] && printElem && printBillElem) {
       if (
         checkBoxElement.attributes['aria-checked'].value === 'true' ||
         checkBoxElement.attributes['aria-checked'].value === 'mixed'

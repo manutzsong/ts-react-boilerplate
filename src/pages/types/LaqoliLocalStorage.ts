@@ -1,4 +1,4 @@
 export type LaqoliLocalStorage = {
-    logo:string;
-    identificationNumber:string;
+    logo?:string;
+    identificationNumber?:string;
 }
