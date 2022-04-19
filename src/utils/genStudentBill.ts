@@ -325,7 +325,8 @@ const GenStudentBill = async (
 
     doc.addPage();
   }
-
+  const pageCount = doc.getNumberOfPages();
+  doc.deletePage(pageCount);
   const outputHere = doc.output('datauristring');
   window.open(doc.output('bloburl'), '_blank');
   console.log(outputHere);

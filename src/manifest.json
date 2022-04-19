@@ -10,15 +10,6 @@
   },
   "content_scripts": [
     {
-      "js": [
-        "content/index.ts"
-      ],
-      "matches": [
-        "https://*/*",
-        "http://*/*"
-      ]
-    },
-    {
       "run_at": "document_end",
       "matches": [
         "https://sellercenter.lazada.co.th/apps/order/index*"
@@ -58,7 +49,6 @@
   "browser_action": {
     "default_popup": "pages/popup/index.html"
   },
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApbozNvdaIn2baX344ri6ehtvJ1pvGO5+asWscNuA6pQkx12zt37Ez3WEU/uUYKXoF6yatHsedmpfbjYmaTF4v8X9ilX4ZUBtk8Ay9Q5vHn5mmKx/hvV6tLRByMD3qCDsJkxuNQF6dh/Ch37kkD0ABrLM4Z2vYkt6Ag/GB+Ksxr/q01nMlybPdBicOpvIRITjXF5nrvH2gQ01g6HBll8zj43vpUeIq1CCbcvixM/npBaXtwY3W2H+NSsrEeF8E/orKL8da0hTjMaL7XHfun2Y2e2ISFw5Zv8+/qAglIgP1sojxxcFLN2/9Kx8LksyIrNZ+cvYTHvXhKWg62TtE/ImuwIDAQAB",
   "icons": {
     "16": "assets/icon16.png",
     "48": "assets/icon48.png",
@@ -72,9 +62,6 @@
     "storage",
     "unlimitedStorage",
     "tabs",
-    "https://sellercenter.lazada.co.th*"
-  ],
-  "host_permissions": [
     "https://sellercenter.lazada.co.th*"
   ]
 }

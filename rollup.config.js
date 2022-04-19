@@ -22,6 +22,7 @@ export default {
     dir: 'dist',
     // format: 'cjs',
     format: 'esm',
+    // path: path.join(__dirname, "dist"),
     // chunkFileNames: path.join('chunks', '[name]-[hash].js'),
   },
   plugins: [
