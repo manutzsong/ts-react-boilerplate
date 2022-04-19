@@ -1,3 +1,4 @@
+import GenCashBill from '../utils/genOnlyCashBill';
 import lazadaAPI from '../utils/lazadaAPI';
 import utils from '../utils/utils';
 
@@ -57,6 +58,12 @@ const init = async () => {
     /* append checkbox */
     const tbody = document.querySelectorAll('tbody tr');
     if (tbody) {
+      document
+        .querySelector('[data-spm="item_list_panel"] .next-card-header-titles')
+        ?.insertAdjacentHTML(
+          'afterend',
+          "<button class='next-btn next-medium next-btn-primary aplus-auto-clk aplus-auto-exp' id='print-laqoli'>PRINT (Laqoli)</button>",
+        ); //append button
       [...tbody].forEach((item) => {
         if (
           item &&
@@ -68,7 +75,44 @@ const init = async () => {
         }
       });
     }
-    //[...document.querySelectorAll("input.laqoli-checkbox")].filter(x => x.checked)[0].parentElement.parentElement.parentElement.children[2].textContent
+    document
+      .getElementById('print-laqoli')
+      ?.addEventListener('click', getItemId);
+  }
+};
+
+const getItemId = async () => {
+  const checkBoxes = document.querySelectorAll('input.laqoli-checkbox');
+  if (checkBoxes) {
+    const checkBoxesElement = [...checkBoxes] as HTMLInputElement[];
+    const filteredCheckBoxes = checkBoxesElement
+      .filter((x) => x.checked)
+      .flatMap(
+        (x) =>
+          x?.parentElement?.parentElement?.parentElement?.children[2]
+            ?.textContent,
+      );
+    console.log(filteredCheckBoxes);
+    if (filteredCheckBoxes.length > 0) {
+      printLaqoli(filteredCheckBoxes as string[]);
+    }
+  }
+};
+
+const printLaqoli = async (itemId: string[]) => {
+  const orderId = document
+    .querySelector('.order-detail-title-number')
+    ?.textContent?.split(' ')[1];
+  if (orderId) {
+    const order = await lazadaAPI.getOrders(orderId);
+    const orderResult = order.data.data;
+    const itemList = orderResult[6].dataSource;
+    const filteredItemList = itemList.filter((x) =>
+      itemId.includes(x.orderLineId),
+    );
+    console.log(filteredItemList);
+    console.log(orderResult);
+    GenCashBill(order, filteredItemList);
   }
 };
 init();
