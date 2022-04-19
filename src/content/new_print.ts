@@ -10,14 +10,14 @@ import utils from '../utils/utils';
 
 let intervalButtons: NodeJS.Timeout;
 
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    // listen for messages sent from background.js
-    if (request.message === 'hello!') {// this we will reinject the url
-      console.log(request.details) // new url is now in content scripts!
-      clearInterval(intervalButtons); // clear the inverval
-      init(); // reinject the script
-    }
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  // listen for messages sent from background.js
+  if (request.message === 'hello!') {
+    // this we will reinject the url
+    console.log(request.details); // new url is now in content scripts!
+    clearInterval(intervalButtons); // clear the inverval
+    init(); // reinject the script
+  }
 });
 
 const init = async () => {
@@ -44,19 +44,25 @@ const init = async () => {
     ?.addEventListener('click', () => getOrders(true));
 
   intervalButtons = setInterval(() => {
-    const checkBoxElement = document.querySelector("div.next-table-cell-wrapper .next-checkbox-input") as HTMLElement;
-    const printElem = document.getElementById("print") as HTMLButtonElement;
-    const printBillElem = document.getElementById("print-student") as HTMLButtonElement;
-    if (checkBoxElement && checkBoxElement.attributes["aria-checked"]) {
-      if (checkBoxElement.attributes["aria-checked"].value === "true" || checkBoxElement.attributes["aria-checked"].value === "mixed") {
+    const checkBoxElement = document.querySelector(
+      'div.next-table-cell-wrapper .next-checkbox-input',
+    ) as HTMLElement;
+    const printElem = document.getElementById('print') as HTMLButtonElement;
+    const printBillElem = document.getElementById(
+      'print-student',
+    ) as HTMLButtonElement;
+    if (checkBoxElement && checkBoxElement.attributes['aria-checked']) {
+      if (
+        checkBoxElement.attributes['aria-checked'].value === 'true' ||
+        checkBoxElement.attributes['aria-checked'].value === 'mixed'
+      ) {
         if (printElem && printBillElem) {
           printElem.disabled = false;
           printBillElem.disabled = false;
         }
-      }
-      else {
+      } else {
         printElem.disabled = true;
-          printBillElem.disabled = true;
+        printBillElem.disabled = true;
       }
     }
   }, 200);
@@ -83,23 +89,31 @@ const getOrders = async (bill: boolean) => {
     const orderIdsPromises = orderIds.map((orderId) =>
       lazadaAPI.getOrders(orderId),
     );
-    const ordersResults: LazadaOrder[] = await Promise.all(orderIdsPromises);
+    try {
+      const ordersResults: LazadaOrder[] = await Promise.all(orderIdsPromises);
 
-    const printLabelPromises = ordersResults.map((x) => {
-      const orderId = x.data.data[0].orderNumber;
-      const tradeOrderLineIds = x.data.data[6].dataSource?.map(
-        // tradeOrderLineIds are each item id in the order
-        (x) => x.orderLineId,
-      );
-      return lazadaAPI.getPrintLabel(
-        orderId as string,
-        tradeOrderLineIds as string[],
-      );
-    });
+      const printLabelPromises = ordersResults.map((x) => {
+        const orderId = x.data.data[0].orderNumber;
+        const tradeOrderLineIds = x.data.data[6].dataSource?.map(
+          // tradeOrderLineIds are each item id in the order
+          (x) => x.orderLineId,
+        );
+        return lazadaAPI.getPrintLabel(
+          orderId as string,
+          tradeOrderLineIds as string[],
+        );
+      });
 
-    const printLabelResults = await Promise.all(printLabelPromises);
-    console.log(printLabelResults);
+      const printLabelResults = await Promise.all(printLabelPromises);
+      console.log(printLabelResults);
 
-    GenStudentBill(ordersResults, printLabelResults, bill);
+      GenStudentBill(ordersResults, printLabelResults, bill);
+    } catch (e:any) {
+      console.log(e.url);
+      // alert('ERROR TRY AGAIN');
+      const url = e.url as string;
+
+      window.open(url, '_blank')?.focus();
+    }
   }
 };

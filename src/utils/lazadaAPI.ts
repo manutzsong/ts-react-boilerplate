@@ -11,11 +11,11 @@ import {
 } from '../pages/types/LazadaTransactions';
 import dayjs from 'dayjs';
 import { LaqoliYearlyTransactionsData } from '../pages/types/LaqoliYearlyTransactionsData';
+import { LazadaShopPhoneType } from '../pages/types/LazadaShopPhoneType';
 
 const getOrders = async (orderID: string): Promise<LazadaOrder> => {
   const data = {
     _timezone: -7,
-    spm: 'a1zawg.20980230.order_table_0.1.21ac4edfymPXAz',
     tradeOrderId: orderID,
   };
   const resultAPICall = APICallString(
@@ -23,8 +23,23 @@ const getOrders = async (orderID: string): Promise<LazadaOrder> => {
     data,
     '4272',
   );
-  const resultAPI = await fetchAdapter.fetchGetAdapt(resultAPICall);
-  return new Promise((resolve) => resolve(resultAPI as LazadaOrder));
+  try {
+    const resultAPI = (await fetchAdapter.fetchGetAdapt(resultAPICall)) as any;
+    if (resultAPI) {
+      if (resultAPI.ret[0] === 'FAIL_SYS_USER_VALIDATE') {
+        throw {
+          message: 'FAIL_SYS_USER_VALIDATE',
+          url: resultAPI.data.url,
+        };
+      } else {
+        return new Promise((resolve) => resolve(resultAPI as LazadaOrder));
+      }
+    } else {
+      throw { message: 'FAIL NETWORK' };
+    }
+  } catch (e) {
+    return new Promise((_resolve, reject) => reject(e));
+  }
 };
 
 const getAddress = async (): Promise<LazadaAddressType> => {
@@ -52,6 +67,18 @@ const getShopInfo = async (): Promise<LazadaShopInfoType> => {
   );
   const resultAPI = await fetchAdapter.fetchGetAdapt(resultAPICall);
   return new Promise((resolve) => resolve(resultAPI as LazadaShopInfoType));
+};
+const getShopPhone = async (): Promise<LazadaShopPhoneType> => {
+  const data = {
+    groupId: 1,
+  };
+  const resultAPICall = APICallString(
+    'https://acs-m.lazada.co.th/h5/mtop.global.merchant.subaccount.profile.render.lazada/1.0/?jsv=2.6.1&appKey=4272&t=1650347137909&sign=49af15c193d1db9a77126508ad2d2f06&v=1.0&timeout=30000&H5Request=true&url=mtop.global.merchant.subaccount.profile.render.lazada&params=%5Bobject%20Object%5D&api=mtop.global.merchant.subaccount.profile.render.lazada&type=originaljson&dataType=json&valueType=original&x-i18n-regionID=LAZADA_TH&data=%7B%22groupId%22%3A1%2C%22spm%22%3A%22a1zawg.26007879.configs.d_seller.74004edfLqJiK4%22%7D',
+    data,
+    '4272',
+  );
+  const resultAPI = await fetchAdapter.fetchGetAdapt(resultAPICall);
+  return new Promise((resolve) => resolve(resultAPI as LazadaShopPhoneType));
 };
 
 const getPrintLabel = async (
@@ -150,9 +177,9 @@ const getTransaction = async (): Promise<DataSourceTransactions[]> => {
   return new Promise((resolve) => resolve(dataSourceTransactions));
 };
 
-const getTransactionYearlySummary = async ():Promise<LaqoliYearlyTransactionsData[]>=> {
-
-
+const getTransactionYearlySummary = async (): Promise<
+  LaqoliYearlyTransactionsData[]
+> => {
   const transactions: DataSourceTransactions[] = await getTransaction();
   console.log(transactions);
 
@@ -184,7 +211,7 @@ const getTransactionYearlySummary = async ():Promise<LaqoliYearlyTransactionsDat
 
     yearlyData.push({
       year: parseInt(endDate.format('YYYY')),
-      total:total,
+      total: total,
       lazadaFees: lazadaFees,
       lazadaMarketingFees: lazadaMarketingFees,
       dataSourceTransactions: yearlyDataItem,
@@ -203,4 +230,5 @@ export default {
   getOrderByOrderId,
   getTransaction,
   getTransactionYearlySummary,
+  getShopPhone,
 };

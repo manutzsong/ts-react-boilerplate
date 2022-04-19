@@ -6,7 +6,9 @@ const init = async () => {
   const orderIdElement = await utils.waitForElement(
     'span.order-detail-title-number',
   );
-  const orderHeader = await utils.waitForElement("div.next-card-header-title") as HTMLElement;
+  const orderHeader = (await utils.waitForElement(
+    'div.next-card-header-title',
+  )) as HTMLElement;
   const orderId = orderIdElement.textContent?.split(' ')[1];
   const orderResult = await lazadaAPI.getOrderByOrderId(orderId ?? '');
   /* manipulate add button */
@@ -28,10 +30,10 @@ const init = async () => {
     // <span class="icon-open-chat icon-asc-order icon-asc-order-chat"></span>`;
 
     // sectionBox.children[0].children[1].append(divAppend);
-    orderHeader.className = "next-card-header-title d-flex";
-    orderHeader.style.alignItems = "center";
-    orderHeader.style.justifyContent = "space-between";
-    const divAppend = document.createElement("a");
+    orderHeader.className = 'next-card-header-title d-flex';
+    orderHeader.style.alignItems = 'center';
+    orderHeader.style.justifyContent = 'space-between';
+    const divAppend = document.createElement('a');
     divAppend.innerHTML = `
     <div class="order-header-chat-box">
         <a 
@@ -49,11 +51,24 @@ const init = async () => {
                     </span>
         </a>
     </div>
-`
+`;
     orderHeader.append(divAppend);
+
+    /* append checkbox */
+    const tbody = document.querySelectorAll('tbody tr');
+    if (tbody) {
+      [...tbody].forEach((item) => {
+        if (
+          item &&
+          item.firstElementChild &&
+          item.firstElementChild.firstElementChild
+        ) {
+          item.firstElementChild.firstElementChild.innerHTML =
+            '<input type="checkbox" class="laqoli-checkbox"/>';
+        }
+      });
+    }
+    //[...document.querySelectorAll("input.laqoli-checkbox")].filter(x => x.checked)[0].parentElement.parentElement.parentElement.children[2].textContent
   }
-  // document
-  //   .getElementById('print-student')
-  //   ?.addEventListener('click', getOrders);
 };
 init();

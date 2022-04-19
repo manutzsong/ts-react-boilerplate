@@ -71,14 +71,16 @@ const getShopInfo = async (): Promise<{
   const promises = await Promise.all([
     lazadaAPI.getShopInfo(),
     lazadaAPI.getAddress(),
+    lazadaAPI.getShopPhone(),
   ]);
 
   const shopInfoRes = promises[0];
   const shopAddress = promises[1];
+  const shopPhone = promises[2];
 
   const shopInfo = {
     name: shopInfoRes.data.data.storeName,
-    phone: `0${shopInfoRes.data.data.phone}`,
+    phone: shopPhone.data.data.fields[3].value,
     address: shopAddress.data.data.fields[8].value,
     logo: shopInfoRes.data.data.shopLogo,
   };
@@ -108,6 +110,22 @@ const GenStudentBill = async (
   doc.setFont('Kanit-Regular-normal', 'normal');
 
   for (let z = 0; z < orders.length; z += 1) {
+    // Get the snackbar DIV
+    const snackbarDiv = document.getElementById('snackbar');
+    if (snackbarDiv) {
+      // Add the "show" class to DIV
+      snackbarDiv.className = 'show';
+      snackbarDiv.textContent = `Printing ${z + 1}/${orders.length}`;
+
+      // After 3 seconds, remove the show class from DIV
+      setTimeout(function () {
+        console.log('SNACKBAR ');
+        if (snackbarDiv) {
+          snackbarDiv.className = snackbarDiv.className.replace('show', '');
+        }
+      }, 1000);
+    }
+
     const order = orders[z].data.data;
     const products = order[6].dataSource;
 
@@ -115,7 +133,11 @@ const GenStudentBill = async (
     const pngBase64 = await fetchSVG(labels[z]);
     doc.addImage(pngBase64, 'PNG', 30, 30, 180, 252, undefined, 'FAST');
 
-    if (laqoliLocalStorage && laqoliLocalStorage.logo && laqoliSyncSettings.logoEnabled) {
+    if (
+      laqoliLocalStorage &&
+      laqoliLocalStorage.logo &&
+      laqoliSyncSettings.logoEnabled
+    ) {
       if (laqoliLocalStorage.logo) {
         const { width, height } = await getImageDimension(
           laqoliLocalStorage.logo,
@@ -197,7 +219,8 @@ const GenStudentBill = async (
     }
 
     // end tracking page
-    if (bill) { //if bill is true, add bill page
+    if (bill) {
+      //if bill is true, add bill page
       doc.addPage();
 
       doc.addImage(shopInfo.logo, 'PNG', 20, 20, 85, 85, undefined, 'FAST');

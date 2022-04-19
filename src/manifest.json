@@ -11,6 +11,7 @@
   "content_scripts": [
     {
       "run_at": "document_end",
+      "css": [ "content/snackbar.css" ],
       "matches": [
         "https://sellercenter.lazada.co.th/apps/order/index*"
       ],
@@ -20,6 +21,7 @@
     },
     {
       "run_at": "document_end",
+      "css": [ "content/snackbar.css" ],
       "matches": [
         "https://sellercenter.lazada.co.th/apps/order/list*"
       ],
