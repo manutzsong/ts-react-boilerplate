@@ -257,7 +257,7 @@ const GetShoppeeStudentBill = async (orders: ShopeeOrderType[]) => {
         doc.text(splitProductName, 130, y);
         // doc.setFontSize(6);
         doc.text(product.amount?.toString() ?? '1', 260, y);
-        doc.text(sumCurrentProducts.toString(), 310, y);
+        doc.text(product.item_model.price_before_discount.replace(/\.00$/,''), 310, y);
         doc.text(sumCurrentProducts.toString(), 360, y);
         total += sumCurrentProducts;
         y += 35;
