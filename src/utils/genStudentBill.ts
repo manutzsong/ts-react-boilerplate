@@ -127,7 +127,8 @@ const GenStudentBill = async (
     }
 
     const order = orders[z].data.data;
-    const products = order[6].dataSource;
+    let products = order[6].dataSource;
+    products = products.filter((product) => product.status !== "canceled");
 
     let yTracking = 30;
     const pngBase64 = await fetchSVG(labels[z]);
@@ -292,11 +293,11 @@ const GenStudentBill = async (
       for (let i = 0; i < groupUpProducts.length; i += 1) {
         const product = groupUpProducts[i];
 
-        const isThai = /([\u0E00-\u0E7F]+)/gmu.test(product.itemName);
-        let productName = product.sellerSku;
-        if (isThai && product.sellerSku) {
-          productName = product.itemName;
-        }
+        // const isThai = /([\u0E00-\u0E7F]+)/gmu.test(product.itemName);
+        // let productName = product.sellerSku;
+        // if (isThai && product.sellerSku) {
+        //   productName = product.itemName;
+        // }
         const productQty = product.quantity ?? 1;
         const sumCurrentProducts = parseFloat(product.totalAmount) * productQty;
 
@@ -305,7 +306,7 @@ const GenStudentBill = async (
         // doc.setFontSize(6);
         const splitSellerSku = doc.splitTextToSize(product.sellerSku, 40);
         doc.text(splitSellerSku, 60, y);
-        const splitProductName = doc.splitTextToSize(productName, 110);
+        const splitProductName = doc.splitTextToSize(`(ชุดนักเรียน) ${product.sellerSku}`, 110);
         doc.text(splitProductName, 130, y);
         // doc.setFontSize(6);
         doc.text(product.quantity?.toString() ?? '1', 260, y);

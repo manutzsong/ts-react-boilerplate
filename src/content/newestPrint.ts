@@ -5,7 +5,7 @@ import lazadaAPI from '../utils/lazadaAPI';
 import GenStudentBill from '../utils/genStudentBill';
 import { LazadaOrder } from '../pages/types/LazadaOrderType';
 import utils from '../utils/utils';
-
+import GenStudentBillSeperate from '../utils/genStudentBillSeperate';
 let intervalButtons: NodeJS.Timeout;
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -21,10 +21,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 const init = async () => {
   const addressRes = await lazadaAPI.getAddress();
   console.log(addressRes);
+  const toolbarContainer = await utils.waitForElement('.order-toolbar-actions');
 
-  const toolbarContainer = await utils.waitForElement(
-    '.list-toolbar .order-toolbar-actions .order-toolbar-actions-left',
-  );
   /* manipulate add button */
 
   toolbarContainer.insertAdjacentHTML(
@@ -33,17 +31,28 @@ const init = async () => {
     <div style="padding-right: 1rem;">
       <button disabled class="next-btn next-medium next-btn-primary aplus-auto-clk aplus-auto-exp" id="print">Print Dropoff</button>
       <button disabled class="next-btn next-medium next-btn-primary aplus-auto-clk aplus-auto-exp" id="print-student">Print Dropoff + ใบเสร็จ</button>
-      <div id="snackbar">Some text some message..</div>
+      <button disabled class="next-btn next-medium next-btn-primary aplus-auto-clk aplus-auto-exp" id="print-student-seperate">Print Dropoff + ใบเสร็จ Seperate</button>
     </div>
   `,
   );
+  const reInject = () => {
+    clearInterval(intervalButtons); // clear the inverval
+    init(); // reinject the script
+  };
+
+  document.getElementById('reinject')?.addEventListener('click', reInject);
+
   document
     .getElementById('print')
-    ?.addEventListener('click', () => getOrders(false));
+    ?.addEventListener('click', () => getOrders(false, false));
 
   document
     .getElementById('print-student')
-    ?.addEventListener('click', () => getOrders(true));
+    ?.addEventListener('click', () => getOrders(true, false));
+
+  document
+    .getElementById('print-student-seperate')
+    ?.addEventListener('click', () => getOrders(true, true));
 
   intervalButtons = setInterval(() => {
     const checkBoxElement = document.querySelector(
@@ -53,11 +62,15 @@ const init = async () => {
     const printBillElem = document.getElementById(
       'print-student',
     ) as HTMLButtonElement;
+    const printSeperateElem = document.getElementById(
+      'print-student-seperate',
+    ) as HTMLButtonElement;
     if (
       checkBoxElement &&
       checkBoxElement.attributes['aria-checked'] &&
       printElem &&
-      printBillElem
+      printBillElem &&
+      printSeperateElem
     ) {
       if (
         checkBoxElement.attributes['aria-checked'].value === 'true' ||
@@ -66,17 +79,19 @@ const init = async () => {
         if (printElem && printBillElem) {
           printElem.disabled = false;
           printBillElem.disabled = false;
+          printSeperateElem.disabled = false;
         }
       } else {
         printElem.disabled = true;
         printBillElem.disabled = true;
+        printSeperateElem.disabled = true;
       }
     }
   }, 200);
 };
 init();
 
-const getOrders = async (bill: boolean) => {
+const getOrders = async (bill: boolean, splitDoc: boolean) => {
   const ordersElem = document.querySelectorAll('div.list-item-header');
 
   const filteredInputChecked = [...ordersElem].filter(
@@ -88,27 +103,41 @@ const getOrders = async (bill: boolean) => {
   );
   console.log(orderIds, filteredInputChecked);
 
-  const orderIdsPromises = orderIds.map((orderId) =>
-    lazadaAPI.getOrders(orderId),
-  );
   try {
-    const ordersResults: LazadaOrder[] = await Promise.all(orderIdsPromises);
+    const ordersResults: LazadaOrder[] = []; //pararell will cause bot detect
+    for (const orderId of orderIds) {
+      const orderResult = await lazadaAPI.getOrders(orderId);
+      ordersResults.push(orderResult);
+    }
+
     const printLabelPromises = ordersResults.map((x, xid) => {
       const orderId = x.data.data[0].orderNumber;
-      const tradeOrderLineIds = x.data.data[6].dataSource?.map(
-        // tradeOrderLineIds are each item id in the order
-        (x) => x.orderLineId,
-      );
-      return lazadaAPI.getPrintLabel(
-        orderId as string,
-        tradeOrderLineIds as string[],
-      );
+      const tradeOrderLineIds = x.data.data[6].dataSource
+        ?.filter((x) => x.status !== 'canceled')
+        .map(
+          // tradeOrderLineIds are each item id in the order
+          (x) => x.orderLineId,
+        );
+      return {
+        orderId,
+        orderItemIds: tradeOrderLineIds,
+      };
+      // return lazadaAPI.getPrintLabel(
+      //   orderId as string,
+      //   tradeOrderLineIds as string[],
+      // );
     });
 
-    const printLabelResults = await Promise.all(printLabelPromises);
+    const printLabelResults = await lazadaAPI.getPrintMultipleLabels(
+      printLabelPromises,
+    );
     console.log(printLabelResults);
-    GenStudentBill(ordersResults, printLabelResults, bill);
-  } catch (e:any) {
+    if (splitDoc) {
+      GenStudentBillSeperate(ordersResults, printLabelResults, bill);
+    } else {
+      GenStudentBill(ordersResults, printLabelResults, bill);
+    }
+  } catch (e: any) {
     console.log(e.url);
     // alert('ERROR TRY AGAIN');
     const url = e.url as string;
@@ -116,3 +145,13 @@ const getOrders = async (bill: boolean) => {
     window.open(url, '_blank')?.focus();
   }
 };
+
+const initHead = async () => {
+  const pageTitle = await utils.waitForElement('.page-title');
+  pageTitle.insertAdjacentHTML(
+    'afterend',
+    '<button id="reinject">Debug</button><div id="snackbar">Some text some message..</div>',
+  );
+};
+
+initHead();

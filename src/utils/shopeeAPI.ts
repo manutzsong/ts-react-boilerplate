@@ -1,3 +1,4 @@
+import { ShopeeFindOrder } from '../pages/types/ShopeeFindOrder';
 import { ShopeeOrderType } from '../pages/types/ShopeeOrderType';
 import { ShopeeShopAddress } from '../pages/types/ShopeeShopAddress';
 import { ShopeeShopInfo } from '../pages/types/ShopeeShopInfo';
@@ -52,6 +53,26 @@ const getAddress = async (): Promise<ShopeeShopAddress> => {
   return order;
 };
 
+const getOrderRealId = async (orderSN:string):Promise<ShopeeFindOrder> => {
+  const res = await fetch(
+    `https://seller.shopee.co.th/api/v3/order/search_order_hint?&keyword=${orderSN}&category=1&list_type=toship`,
+    {
+      headers: {
+        accept: 'application/json, text/plain, */*',
+        'accept-language': 'en-US,en;q=0.9',
+        'cache-control': 'no-cache',
+        pragma: 'no-cache',
+      },
+      body: null,
+      method: 'GET',
+      mode: 'cors',
+      credentials: 'include',
+    },
+  );
+  const resJSON = res.json();
+  return new Promise((resolve) => resolve(resJSON));
+};
+
 const getShopInfo = async (): Promise<ShopeeShopInfo> => {
   const res = await fetch(
     'https://seller.shopee.co.th/api/v3/general/get_shop',
@@ -103,4 +124,4 @@ const getShopLogo = async (): Promise<string> => {
   return `https://cf.shopee.co.th/file/${order.portrait}`;
 };
 
-export default { getOrder, getShopInfo, getAddress, getShopLogo };
+export default { getOrder, getShopInfo, getAddress, getShopLogo, getOrderRealId };

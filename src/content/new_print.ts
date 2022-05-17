@@ -94,7 +94,7 @@ const getOrders = async (bill: boolean) => {
 
       const printLabelPromises = ordersResults.map((x) => {
         const orderId = x.data.data[0].orderNumber;
-        const tradeOrderLineIds = x.data.data[6].dataSource?.map(
+        const tradeOrderLineIds = x.data.data[6].dataSource?.filter(x => x.status === "canceled").map(
           // tradeOrderLineIds are each item id in the order
           (x) => x.orderLineId,
         );

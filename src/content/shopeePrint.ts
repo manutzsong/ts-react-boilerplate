@@ -13,16 +13,46 @@ const init = async () => {
       `<div>
         <button type="button" class="search-btn shopee-button shopee-button--primary shopee-button--normal" id="print-bill">Print Bill</button>
         </button>
+        
         </div>`,
+    );
+
+    document.querySelector('div.content-box')?.insertAdjacentHTML(
+      'afterend',
+      `<button type="button" class="search-btn shopee-button shopee-button--primary shopee-button--normal" id="debug-print">Debug</button>
+    </button>`,
     );
 
     document
       .getElementById('print-bill')
       ?.addEventListener('click', getCheckboxes);
+
+    document
+      .getElementById('debug-print')
+      ?.addEventListener('click', getOrderTbody);
   }
 };
 
-const getCheckboxes = async() => {
+const getOrderTbody = async () => {
+  // document.querySelectorAll("tbody div.order-sn")[1].textContent.trim()
+  const orderIds = [...document.querySelectorAll('tbody div.order-sn')].flatMap(
+    (x) => x?.textContent?.trim(),
+  );
+  console.log(orderIds);
+  const promisesOrderSN = await Promise.all(
+    orderIds.map((x) => shopeeAPI.getOrderRealId(x as string)),
+  );
+
+  const realOrderId = promisesOrderSN.map((x) => x.data.order_sn_result.list[0].order_id.toString());
+
+  const promisesOrder = await Promise.all(
+    realOrderId.map((x) => shopeeAPI.getOrder(x)),
+  );
+
+  GetShoppeeStudentBill(promisesOrder);
+};
+
+const getCheckboxes = async () => {
   const checkboxes = document.querySelectorAll(
     '.order-list-table-body .table-td.checkbox input',
   );

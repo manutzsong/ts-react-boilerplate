@@ -4,6 +4,7 @@ import { FormControlLabel, Switch, TextField } from '@mui/material'
 import ChangeLogoImage from '../../components/ChangeLogoImage'
 import { LaqoliSyncSettings } from '../../types/LaqoliSyncSettings'
 import { LaqoliLocalStorage } from '../../types/LaqoliLocalStorage'
+import ChangeLogoSmallImage from '../../components/ChangeLogoSmallImage'
 
 const BillPrintEdit = () => {
   const [logoEnabled, setLogoEnabled] = React.useState<boolean>(false)
@@ -23,7 +24,7 @@ const BillPrintEdit = () => {
         }: {
           laqoliSyncSettings: LaqoliSyncSettings
         }) => {
-          if (laqoliSyncSettings) {
+          if (laqoliSyncSettings && laqoliSyncSettings.logoEnabled && laqoliSyncSettings.orderNumberEnabled && laqoliSyncSettings.phoneEnabled && laqoliSyncSettings.productImageEnabled) {
             setLogoEnabled(laqoliSyncSettings.logoEnabled)
             setOrderNumberEnabled(laqoliSyncSettings.orderNumberEnabled)
             setPhoneEnabled(laqoliSyncSettings.phoneEnabled)
@@ -69,6 +70,7 @@ const BillPrintEdit = () => {
       Storage.local.set({
         laqoliLocalStorage: {
           logo: laqoliLocalStorage.logo,
+          logoSmall: laqoliLocalStorage.logoSmall,
           identificationNumber: IdentificationNumber,
         },
       })
@@ -118,6 +120,7 @@ const BillPrintEdit = () => {
       </div>
       <div className="d-flex py-3">
         <ChangeLogoImage logoEnabled={logoEnabled} />
+        <ChangeLogoSmallImage logoEnabled={logoEnabled} />
         <TextField
           label="Identification Number"
           value={IdentificationNumber}

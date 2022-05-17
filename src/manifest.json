@@ -2,7 +2,7 @@
   "name": "Laqoli - Lazada QOL Improvements",
   "short_name": "Laqoli",
   "description": "Mass announce promotion, unpaid, shipped and invite to follow, COD blacklist, bill customization, transaction analysis.",
-  "version": "2.01",
+  "version": "2.05",
   "background": {
     "scripts": ["background/index.ts"]
   },
@@ -37,6 +37,20 @@
         "https://seller.shopee.co.th/portal/sale/mass/ship*"
       ],
       "js": ["content/shopeePrint.ts"]
+    },
+    {
+      "run_at" : "document_end",
+      "matches" : [
+        "https://seller.shopee.co.th/portal/settings/shop/rating*"
+      ],
+      "js": ["content/reviews.ts"]
+    },
+    {
+      "run_at" : "document_end",
+      "matches" : [
+        "https://seller-th.tiktok.com/shipment*"
+      ],
+      "js": ["content/tiktokOrder.ts"]
     }
   ],
   "browser_action": {

@@ -1,15 +1,15 @@
-import { Button } from '@mui/material'
-import React, { useEffect, useState } from 'react'
-import { LaqoliSyncSettings } from '../types/LaqoliSyncSettings'
-import { storage as Storage } from '@extend-chrome/storage'
-import { LaqoliLocalStorage } from '../types/LaqoliLocalStorage'
-const ChangeLogoImage = ({
+import { Button } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { LaqoliSyncSettings } from '../types/LaqoliSyncSettings';
+import { storage as Storage } from '@extend-chrome/storage';
+import { LaqoliLocalStorage } from '../types/LaqoliLocalStorage';
+const ChangeLogoSmallImage = ({
   logoEnabled,
 }: {
-  logoEnabled: LaqoliSyncSettings['logoEnabled']
+  logoEnabled: LaqoliSyncSettings['logoEnabled'];
 }) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [preview, setPreview] = useState<string>('')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string>('');
   const [laqoliLocalStorageState, setLaqoliLocalStorageState] =
     useState<LaqoliLocalStorage>();
 
@@ -20,44 +20,45 @@ const ChangeLogoImage = ({
         ({
           laqoliLocalStorage,
         }: {
-          laqoliLocalStorage: LaqoliLocalStorage
+          laqoliLocalStorage: LaqoliLocalStorage;
         }) => {
-          if (laqoliLocalStorage.logo) {
-            setPreview(laqoliLocalStorage.logo)
+          setLaqoliLocalStorageState(laqoliLocalStorage);
+          if (laqoliLocalStorage.logoSmall) {
+            setPreview(laqoliLocalStorage.logoSmall);
           }
         },
-      )
-  }, [])
+      );
+  }, []);
   useEffect(() => {
     if (selectedFile) {
       // create the preview
-      const objectUrl = URL.createObjectURL(selectedFile)
+      const objectUrl = URL.createObjectURL(selectedFile);
 
-      const reader = new FileReader()
-      reader.readAsDataURL(selectedFile)
+      const reader = new FileReader();
+      reader.readAsDataURL(selectedFile);
       reader.onload = () => {
         Storage.local.set({
           laqoliLocalStorage: {
             ...laqoliLocalStorageState,
-            logo: reader.result,
+            logoSmall: reader.result,
           },
-        })
-      }
+        });
+      };
 
-      setPreview(objectUrl)
+      setPreview(objectUrl);
       // Storage.local.set({
       //   logo : objectUrl,
       // });
-      return () => URL.revokeObjectURL(objectUrl)
+      return () => URL.revokeObjectURL(objectUrl);
     }
     // free memory when ever this component is unmounted
-  }, [selectedFile])
+  }, [selectedFile]);
 
   const onSelectFile = (files: FileList | null): void => {
     if (files) {
-      setSelectedFile(files[0])
+      setSelectedFile(files[0]);
     }
-  }
+  };
 
   if (logoEnabled) {
     return (
@@ -72,10 +73,10 @@ const ChangeLogoImage = ({
           />
         </Button>
       </div>
-    )
+    );
   } else {
-    return <></>
+    return <></>;
   }
-}
+};
 
-export default ChangeLogoImage
+export default ChangeLogoSmallImage;

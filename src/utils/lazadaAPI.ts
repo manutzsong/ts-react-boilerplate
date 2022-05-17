@@ -12,6 +12,7 @@ import {
 import dayjs from 'dayjs';
 import { LaqoliYearlyTransactionsData } from '../pages/types/LaqoliYearlyTransactionsData';
 import { LazadaShopPhoneType } from '../pages/types/LazadaShopPhoneType';
+import { LazadaMultiplePrintLabels } from '../pages/types/LazadaMultiplePrintLabels';
 
 const getOrders = async (orderID: string): Promise<LazadaOrder> => {
   const data = {
@@ -111,6 +112,60 @@ const getPrintLabel = async (
     );
     const printLabel = htmlDoc.documentElement.querySelector('img')?.src;
     resolve(printLabel ?? '');
+  });
+};
+
+const getPrintMultipleLabels = async (
+  orders: {
+    orderId: string;
+    orderItemIds: string[];
+  }[],
+): Promise<string[]> => {
+  const data = {
+    _timezone: -7,
+    processRequest: JSON.stringify({
+      orders: orders,
+      types: ['awb'],
+      source: 'completeHtmlAwb',
+    }),
+  };
+  const resultAPICall = APICallString(
+    'https://acs-m.lazada.co.th/h5/mtop.lazada.seller.order.package.print/1.0/?jsv=2.6.1&appKey=4272&t=1649429102708&sign=8ba95bf3acafeab5fc5ca3be358b6a80&v=1.0&timeout=30000&H5Request=true&url=mtop.lazada.seller.order.package.print&type=originaljson&method=POST&noUrlQuery=true&api=mtop.lazada.seller.order.package.print&dataType=json&valueType=original&x-i18n-regionID=LAZADA_TH',
+    data,
+    '4272',
+  );
+  const resultAPI: LazadaMultiplePrintLabels =
+    (await fetchAdapter.fetchPostAdapter(
+      resultAPICall,
+      data,
+    )) as LazadaMultiplePrintLabels;
+
+  return new Promise((resolve) => {
+    const parser = new DOMParser();
+    // const htmlDoc = parser.parseFromString(
+    //   resultAPI.data.data[0].eventParams.patchs[0].pages[0],
+    //   'text/html',
+    // );
+
+    const printLabels = [] as string[];
+    for (
+      let i = 0;
+      i < resultAPI.data.data[0].eventParams.patchs[0].pages.length;
+      i += 1
+    ) {
+      const htmlHere = parser.parseFromString(
+        resultAPI.data.data[0].eventParams.patchs[0].pages[i],
+        'text/html',
+      );
+      const printLabelHere = htmlHere.documentElement.querySelector('img')?.src;
+      if (printLabelHere) {
+        printLabels.push(printLabelHere);
+      } else {
+        throw new Error('No print label found');
+      }
+    }
+    // const printLabel = htmlDoc.documentElement.querySelector('img')?.src;
+    resolve(printLabels);
   });
 };
 
@@ -231,4 +286,5 @@ export default {
   getTransaction,
   getTransactionYearlySummary,
   getShopPhone,
+  getPrintMultipleLabels,
 };
