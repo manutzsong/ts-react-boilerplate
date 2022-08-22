@@ -5,6 +5,11 @@ import { LaqoliLocalStorage } from '../pages/types/LaqoliLocalStorage';
 import { ShopeeOrderType } from '../pages/types/ShopeeOrderType';
 import shopeeAPI from './shopeeAPI';
 import { TiktokOrderType } from '../pages/types/TiktokOrderType';
+import buddhistEra from 'dayjs/plugin/buddhistEra';
+import dayjs from 'dayjs';
+import thLocale from 'dayjs/locale/th';
+dayjs.locale(thLocale);
+dayjs.extend(buddhistEra)
 
 const numberToThaiBahtText = (inputNumber: number) => {
   const getText = (input: number) => {
@@ -135,8 +140,8 @@ const GetTiktokStudentBill = async (orders: TiktokOrderType[]) => {
     doc.text(`โทร ${shopInfo.phone}`, 110, 95);
 
     doc.setFontSize(12);
-    doc.text('บิลเงินสด', 305, 30);
-    doc.text('CASH SALE', 305, 45);
+    doc.text('ใบเสร็จรับเงิน', 305, 30);
+    doc.text('RECEIPT', 305, 45);
 
     doc.setFontSize(9);
     doc.text('เลขที่', 305, 60);
@@ -148,6 +153,7 @@ const GetTiktokStudentBill = async (orders: TiktokOrderType[]) => {
     doc.text('วันที่', 305, 85);
     doc.text('Date.', 305, 95);
     doc.rect(300, 50, 90, 50);
+    doc.text(dayjs().format("DD/MMM/BBBB"), 330, 90);
 
     doc.text('นามผู้ซื้อ', 30, 130);
     doc.text("Customer's Name", 30, 140);

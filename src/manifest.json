@@ -27,7 +27,7 @@
     {
       "run_at": "document_end",
       "matches": [
-        "https://sellercenter.lazada.co.th/apps/finance/accountStatement/index*"
+        "https://sellercenter.lazada.co.th/apps/finance/accountStatementNew*"
       ],
       "js": ["content/transactions.ts"]
     },

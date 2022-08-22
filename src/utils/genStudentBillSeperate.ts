@@ -7,6 +7,12 @@ import { LaqoliLocalStorage } from '../pages/types/LaqoliLocalStorage';
 import { LaqoliSyncSettings } from '../pages/types/LaqoliSyncSettings';
 import lazadaAPI from './lazadaAPI';
 import { CordiaNewBold } from '../assets/Cordia-New-Bold-bold';
+import ConstantList from '../pages/options/constant';
+import buddhistEra from 'dayjs/plugin/buddhistEra';
+import dayjs from 'dayjs';
+import thLocale from 'dayjs/locale/th';
+dayjs.locale(thLocale);
+dayjs.extend(buddhistEra)
 
 const numberToThaiBahtText = (inputNumber: number) => {
   const getText = (input: number) => {
@@ -80,10 +86,10 @@ const getShopInfo = async (): Promise<{
   const shopPhone = promises[2];
 
   const shopInfo = {
-    name: shopInfoRes.data.data.storeName,
-    phone: shopPhone.data.data.fields[3].value,
-    address: shopAddress.data.data.fields[8].value,
-    logo: shopInfoRes.data.data.shopLogo,
+    name: ConstantList.partnershipName,
+    phone: ConstantList.partnershipPhone,
+    address: ConstantList.partnershipAddress,
+    logo: ConstantList.partnershipLogo,
   };
 
   return shopInfo;
@@ -229,11 +235,11 @@ const GenStudentBillSeperate = async (
       //   doc.text(product.sellerSku, 70, yTracking);
       //   doc.line(25, yTracking + 10, 400, yTracking + 10);
       // } else {
-        doc.setFontSize(20);
-        console.log(product.sellerSku.length);
-        const splitSellerSKU = doc.splitTextToSize(product.sellerSku, 210);
-        doc.text(splitSellerSKU, 70, yTracking - 10);
-        doc.line(25, yTracking + 20, 400, yTracking + 20);
+      doc.setFontSize(20);
+      console.log(product.sellerSku.length);
+      const splitSellerSKU = doc.splitTextToSize(product.sellerSku, 210);
+      doc.text(splitSellerSKU, 70, yTracking - 10);
+      doc.line(25, yTracking + 20, 400, yTracking + 20);
       // }
 
       yTracking += 40;
@@ -249,7 +255,7 @@ const GenStudentBillSeperate = async (
       //if bill is true, add bill page
 
       docStudentBill.addImage(
-        shopInfo.logo,
+        ConstantList.partnershipLogo,
         'PNG',
         20,
         20,
@@ -264,7 +270,7 @@ const GenStudentBillSeperate = async (
       docStudentBill.setFontSize(7);
       docStudentBill.text(shopInfo.address, 110, 55);
       docStudentBill.text(
-        `เลขประจำตัวผู้เสียภาษี ${laqoliLocalStorage.identificationNumber}`,
+        `เลขประจำตัวผู้เสียภาษีอากร ${ConstantList.partnershipVatID}`,
         110,
         65,
       );
@@ -272,7 +278,7 @@ const GenStudentBillSeperate = async (
 
       docStudentBill.setFontSize(12);
       docStudentBill.text('บิลเงินสด', 305, 30);
-      docStudentBill.text('CASH SALE', 305, 45);
+      docStudentBill.text('RECEIPT', 305, 45);
 
       docStudentBill.setFontSize(9);
       docStudentBill.text('เลขที่', 305, 60);
@@ -284,6 +290,7 @@ const GenStudentBillSeperate = async (
       docStudentBill.text('วันที่', 305, 85);
       docStudentBill.text('Date.', 305, 95);
       docStudentBill.rect(300, 50, 90, 50);
+      doc.text(dayjs().format("DD/MMM/BBBB"), 330, 90);
 
       docStudentBill.text('นามผู้ซื้อ', 30, 130);
       docStudentBill.text("Customer's Name", 30, 140);

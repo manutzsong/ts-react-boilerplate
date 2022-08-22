@@ -6,6 +6,12 @@ import { storage } from '@extend-chrome/storage';
 import { LaqoliLocalStorage } from '../pages/types/LaqoliLocalStorage';
 import { LaqoliSyncSettings } from '../pages/types/LaqoliSyncSettings';
 import lazadaAPI from './lazadaAPI';
+import ConstantList from '../pages/options/constant';
+import buddhistEra from 'dayjs/plugin/buddhistEra';
+import dayjs from 'dayjs';
+import thLocale from 'dayjs/locale/th';
+dayjs.locale(thLocale);
+dayjs.extend(buddhistEra)
 
 const numberToThaiBahtText = (inputNumber: number) => {
   const getText = (input: number) => {
@@ -79,10 +85,10 @@ const getShopInfo = async (): Promise<{
   const shopPhone = promises[2];
 
   const shopInfo = {
-    name: shopInfoRes.data.data.storeName,
-    phone: shopPhone.data.data.fields[3].value,
-    address: shopAddress.data.data.fields[8].value,
-    logo: shopInfoRes.data.data.shopLogo,
+    name: ConstantList.partnershipName,
+    phone: ConstantList.partnershipPhone,
+    address: ConstantList.partnershipAddress,
+    logo: ConstantList.partnershipLogo,
   };
 
   return shopInfo;
@@ -128,7 +134,7 @@ const GenStudentBill = async (
 
     const order = orders[z].data.data;
     let products = order[6].dataSource;
-    products = products.filter((product) => product.status !== "canceled");
+    products = products.filter((product) => product.status !== 'canceled');
 
     let yTracking = 30;
     const pngBase64 = await fetchSVG(labels[z]);
@@ -224,22 +230,31 @@ const GenStudentBill = async (
       //if bill is true, add bill page
       doc.addPage();
 
-      doc.addImage(shopInfo.logo, 'PNG', 20, 20, 85, 85, undefined, 'FAST');
+      doc.addImage(
+        ConstantList.partnershipLogo,
+        'PNG',
+        20,
+        20,
+        85,
+        85,
+        undefined,
+        'FAST',
+      );
 
       doc.setFontSize(13);
       doc.text(shopInfo.name, 110, 40);
       doc.setFontSize(7);
       doc.text(shopInfo.address, 110, 55);
       doc.text(
-        `เลขประจำตัวผู้เสียภาษี ${laqoliLocalStorage.identificationNumber}`,
+        `เลขประจำตัวผู้เสียภาษีอากร ${ConstantList.partnershipVatID}`,
         110,
         65,
       );
       doc.text(`โทร ${shopInfo.phone}`, 110, 75);
 
       doc.setFontSize(12);
-      doc.text('บิลเงินสด', 305, 30);
-      doc.text('CASH SALE', 305, 45);
+      doc.text('ใบเสร็จรับเงิน', 305, 30);
+      doc.text('RECEIPT', 305, 45);
 
       doc.setFontSize(9);
       doc.text('เลขที่', 305, 60);
@@ -251,6 +266,7 @@ const GenStudentBill = async (
       doc.text('วันที่', 305, 85);
       doc.text('Date.', 305, 95);
       doc.rect(300, 50, 90, 50);
+      doc.text(dayjs().format("DD/MMM/BBBB"), 330, 90);
 
       doc.text('นามผู้ซื้อ', 30, 130);
       doc.text("Customer's Name", 30, 140);
@@ -306,7 +322,10 @@ const GenStudentBill = async (
         // doc.setFontSize(6);
         const splitSellerSku = doc.splitTextToSize(product.sellerSku, 40);
         doc.text(splitSellerSku, 60, y);
-        const splitProductName = doc.splitTextToSize(`(ชุดนักเรียน) ${product.sellerSku}`, 110);
+        const splitProductName = doc.splitTextToSize(
+          `(ชุดนักเรียน) ${product.sellerSku}`,
+          110,
+        );
         doc.text(splitProductName, 130, y);
         // doc.setFontSize(6);
         doc.text(product.quantity?.toString() ?? '1', 260, y);

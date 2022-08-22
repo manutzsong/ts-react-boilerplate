@@ -71,6 +71,7 @@ const initOld = async () => {
 
       /* append checkbox */
       const tbody = document.querySelectorAll('tbody tr');
+      console.log(tbody);
       if (tbody) {
         document
           .querySelector(
@@ -86,8 +87,10 @@ const initOld = async () => {
             item.firstElementChild &&
             item.firstElementChild.firstElementChild
           ) {
-            item.firstElementChild.firstElementChild.innerHTML =
-              '<input type="checkbox" class="laqoli-checkbox"/>';
+            item.firstElementChild.firstElementChild.insertAdjacentHTML(
+              'afterend',
+              '<input type="checkbox" class="laqoli-checkbox"/>',
+            );
           }
         });
       }
@@ -147,7 +150,7 @@ const initNew = async () => {
     /* append checkbox */
     const header = document.querySelector('div.detail-record');
     const trows = document.querySelectorAll(
-      "tbody.next-table-body td[data-next-table-col='0']",
+      ".next-table-body td[data-next-table-col='0']",
     );
     if (trows && header) {
       header.insertAdjacentHTML(
